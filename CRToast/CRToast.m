@@ -985,8 +985,10 @@ static CGFloat const CRStatusBarViewUnderStatusBarYOffsetAdjustment = -5;
     return self;
 }
 
-- (void)layoutSubviews {
+- (void)layoutSubviews
+{
     [super layoutSubviews];
+    
     CGRect contentFrame = self.bounds;
     CGSize imageSize = self.imageView.image.size;
     
@@ -1001,11 +1003,12 @@ static CGFloat const CRStatusBarViewUnderStatusBarYOffsetAdjustment = -5;
                                       imageSize.height == 0 ?
                                       0 :
                                       CGRectGetHeight(contentFrame));
-    CGFloat x = imageSize.width == 0 ? kCRStatusBarViewNoImageLeftContentInset : CGRectGetMaxX(_imageView.frame);
-    CGFloat width = CGRectGetWidth(contentFrame)-x-kCRStatusBarViewNoImageRightContentInset;
+    
+    CGFloat labelsOriginX = imageSize.width == 0 ? kCRStatusBarViewNoImageLeftContentInset : CGRectGetMaxX(_imageView.frame);
+    CGFloat width = CGRectGetWidth(contentFrame) - labelsOriginX - kCRStatusBarViewNoImageRightContentInset;
     
     if (self.toast.subtitleText == nil) {
-        self.label.frame = CGRectMake(x,
+        self.label.frame = CGRectMake(labelsOriginX,
                                       statusBarYOffset,
                                       width,
                                       CGRectGetHeight(contentFrame));
@@ -1015,24 +1018,40 @@ static CGFloat const CRStatusBarViewUnderStatusBarYOffsetAdjustment = -5;
                                                         attributes:@{NSFontAttributeName : self.toast.font}
                                                            context:nil].size.height,
                              CGRectGetHeight(contentFrame));
-        CGFloat subtitleHeight = [self.toast.subtitleText boundingRectWithSize:CGSizeMake(width, MAXFLOAT)
-                                                                       options:NSStringDrawingUsesLineFragmentOrigin
-                                                                    attributes:@{NSFontAttributeName : self.toast.subtitleFont }
-                                                                       context:nil].size.height;
+        CGRect subtitleRect = [self.toast.subtitleText boundingRectWithSize:CGSizeMake(width, MAXFLOAT)
+                                                                    options:NSStringDrawingUsesLineFragmentOrigin
+                                                                 attributes:@{NSFontAttributeName : self.toast.subtitleFont }
+                                                                    context:nil];
+        CGFloat subtitleHeight = CGRectGetHeight(subtitleRect);
+        
+        CGFloat subtitleWidth = CGRectGetWidth(subtitleRect);
+        CGFloat imageOffsetX = (CGRectGetWidth(contentFrame) - subtitleWidth - imageSize.width - kCRStatusBarViewNoImageRightContentInset) / 2.0;
+        
+        self.imageView.frame = CGRectMake(imageOffsetX,
+                                          statusBarYOffset,
+                                          imageSize.width == 0 ?
+                                          0 :
+                                          CGRectGetHeight(contentFrame),
+                                          imageSize.height == 0 ?
+                                          0 :
+                                          CGRectGetHeight(contentFrame));
+        
         if ((CGRectGetHeight(contentFrame) - (height + subtitleHeight)) < 5) {
             subtitleHeight = (CGRectGetHeight(contentFrame) - (height))-10;
         }
+        
+        labelsOriginX = CGRectGetMaxX(self.imageView.frame);
+        
         CGFloat offset = (CGRectGetHeight(contentFrame) - (height + subtitleHeight))/2;
         
-        self.label.frame = CGRectMake(x,
+        self.label.frame = CGRectMake(labelsOriginX,
                                       offset+statusBarYOffset,
-                                      CGRectGetWidth(contentFrame)-x-kCRStatusBarViewNoImageRightContentInset,
+                                      CGRectGetWidth(contentFrame) - labelsOriginX - kCRStatusBarViewNoImageRightContentInset,
                                       height);
         
-        
-        self.subtitleLabel.frame = CGRectMake(x,
+        self.subtitleLabel.frame = CGRectMake(labelsOriginX,
                                               height+offset+statusBarYOffset,
-                                              CGRectGetWidth(contentFrame)-x-kCRStatusBarViewNoImageRightContentInset,
+                                              CGRectGetWidth(contentFrame) - labelsOriginX - kCRStatusBarViewNoImageRightContentInset,
                                               subtitleHeight);
     }
 }

@@ -7,6 +7,8 @@
 #import <QuartzCore/QuartzCore.h>
 #import "CRToast.h"
 
+#define DegreesToRadians(degrees) (degrees * M_PI / 180)
+
 NSString *NSStringFromCRToastInteractionType(CRToastInteractionType interactionType) {
     switch (interactionType) {
         case CRToastInteractionTypeSwipeUp:
@@ -1139,7 +1141,7 @@ typedef void (^CRToastAnimationStepBlock)(void);
 }
 
 + (void)dismissAllNotifications:(BOOL)animated {
-    [[self manager] dismissAllNotifications:YES];
+    [[self manager] dismissAllNotifications:animated];
 }
 
 + (instancetype)manager {
@@ -1159,6 +1161,7 @@ typedef void (^CRToastAnimationStepBlock)(void);
         notificationWindow.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
         notificationWindow.windowLevel = UIWindowLevelStatusBar;
         notificationWindow.rootViewController = [CRToastViewController new];
+        notificationWindow.rootViewController.view.transform = [self transformForOrientation:[UIApplication sharedApplication].statusBarOrientation];
         notificationWindow.rootViewController.view.clipsToBounds = YES;
         self.notificationWindow = notificationWindow;
         
@@ -1293,7 +1296,7 @@ CRToastAnimationStepBlock CRToastOutwardAnimationsSetupBlock(CRToastManager *wea
     
     _notificationWindow.frame = containerFrame;
     _notificationWindow.rootViewController.view.frame = CGRectMake(0, 0, CGRectGetWidth(containerFrame), CGRectGetHeight(containerFrame));
-    _notificationWindow.windowLevel = notification.displayUnderStatusBar ? UIWindowLevelNormal : UIWindowLevelStatusBar;
+    _notificationWindow.windowLevel = notification.displayUnderStatusBar ? UIWindowLevelNormal + 1 : UIWindowLevelStatusBar;
     
     UIView *statusBarView = notification.statusBarView;
     statusBarView.frame = _notificationWindow.rootViewController.view.bounds;
@@ -1400,5 +1403,25 @@ CRToastAnimationStepBlock CRToastOutwardAnimationsSetupBlock(CRToastManager *wea
         self.gravityAnimationCompletionBlock = NULL;
     }
 }
+
+#pragma mark - Adjusting rotation
+
+- (CGAffineTransform)transformForOrientation:(UIInterfaceOrientation)orientation {
+    switch (orientation) {
+        case UIInterfaceOrientationLandscapeLeft:
+            return CGAffineTransformMakeRotation(-DegreesToRadians(90));
+            
+        case UIInterfaceOrientationLandscapeRight:
+            return CGAffineTransformMakeRotation(DegreesToRadians(90));
+            
+        case UIInterfaceOrientationPortraitUpsideDown:
+            return CGAffineTransformMakeRotation(DegreesToRadians(180));
+            
+        case UIInterfaceOrientationPortrait:
+        default:
+            return CGAffineTransformMakeRotation(DegreesToRadians(0));
+    }
+}
+
 
 @end

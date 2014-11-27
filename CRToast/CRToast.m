@@ -8,8 +8,6 @@
 #import <UIKit/UIKit.h>
 #import "CRToast.h"
 
-#define DegreesToRadians(degrees) (degrees * M_PI / 180)
-
 NSString *NSStringFromCRToastInteractionType(CRToastInteractionType interactionType) {
     switch (interactionType) {
         case CRToastInteractionTypeSwipeUp:
@@ -182,7 +180,7 @@ typedef NS_ENUM(NSInteger, CRToastState) {
 
 NSString *const kCRToastNotificationTypeKey                 = @"kCRToastNotificationTypeKey";
 NSString *const kCRToastNotificationPreferredHeightKey      = @"kCRToastNotificationPreferredHeightKey";
-NSString *const kCRToastNotificationPresentationTypeKey     = @"kCRToastNotificationPresentationTypeKey";
+NSString *tconst kCRToastNotificationPresentationTypeKey     = @"kCRToastNotificationPresentationTypeKey";
 
 NSString *const kCRToastUnderStatusBarKey                   = @"kCRToastUnderStatusBarKey";
 
@@ -1277,7 +1275,6 @@ typedef void (^CRToastAnimationStepBlock)(void);
         notificationWindow.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
         notificationWindow.windowLevel = UIWindowLevelStatusBar;
         notificationWindow.rootViewController = [CRToastViewController new];
-        notificationWindow.rootViewController.view.transform = [self transformForOrientation:[UIApplication sharedApplication].statusBarOrientation];
         notificationWindow.rootViewController.view.clipsToBounds = YES;
         self.notificationWindow = notificationWindow;
         
@@ -1545,25 +1542,5 @@ CRToastAnimationStepBlock CRToastOutwardAnimationsSetupBlock(CRToastManager *wea
         self.gravityAnimationCompletionBlock = NULL;
     }
 }
-
-#pragma mark - Adjusting rotation
-
-- (CGAffineTransform)transformForOrientation:(UIInterfaceOrientation)orientation {
-    switch (orientation) {
-        case UIInterfaceOrientationLandscapeLeft:
-            return CGAffineTransformMakeRotation(-DegreesToRadians(90));
-            
-        case UIInterfaceOrientationLandscapeRight:
-            return CGAffineTransformMakeRotation(DegreesToRadians(90));
-            
-        case UIInterfaceOrientationPortraitUpsideDown:
-            return CGAffineTransformMakeRotation(DegreesToRadians(180));
-            
-        case UIInterfaceOrientationPortrait:
-        default:
-            return CGAffineTransformMakeRotation(DegreesToRadians(0));
-    }
-}
-
 
 @end

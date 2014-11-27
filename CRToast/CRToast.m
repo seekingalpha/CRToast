@@ -180,7 +180,7 @@ typedef NS_ENUM(NSInteger, CRToastState) {
 
 NSString *const kCRToastNotificationTypeKey                 = @"kCRToastNotificationTypeKey";
 NSString *const kCRToastNotificationPreferredHeightKey      = @"kCRToastNotificationPreferredHeightKey";
-NSString *tconst kCRToastNotificationPresentationTypeKey     = @"kCRToastNotificationPresentationTypeKey";
+NSString *const kCRToastNotificationPresentationTypeKey     = @"kCRToastNotificationPresentationTypeKey";
 
 NSString *const kCRToastUnderStatusBarKey                   = @"kCRToastUnderStatusBarKey";
 
